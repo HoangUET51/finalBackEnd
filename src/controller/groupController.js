@@ -1,0 +1,22 @@
+import { getAllGroup } from "../service/groupService";
+
+const handleGetGroup = async (req, res) => {
+  try {
+    let data = await getAllGroup();
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      EM: "Error from server",
+      EC: -1,
+      DT: "",
+    });
+  }
+};
+
+module.exports = {
+  handleGetGroup,
+};
