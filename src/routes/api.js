@@ -22,7 +22,11 @@ import {
 } from "../controller/authController";
 
 import { handleGetGroup } from "../controller/groupController";
-import { handleSendEmail } from "../controller/emailController";
+import {
+  handleSendEmail,
+  handleForgetPassword,
+  handleResetPassword,
+} from "../controller/emailController";
 import { isAuth, checkUserPermisstion } from "../middleware/authMiddleware";
 import {
   handleCreateRole,
@@ -36,7 +40,7 @@ const router = express.Router();
 
 const initApiRoutes = (app) => {
   //Sử dụng authMiddleware.isAuth trước những api cần xác thực
-  // router.all("*", isAuth, checkUserPermisstion);
+  router.all("*", isAuth, checkUserPermisstion);
   //Register User
   router.post("/register", handleRegister);
   router.post("/login", handleLogin);
@@ -71,6 +75,8 @@ const initApiRoutes = (app) => {
   //Email Send
 
   router.post("/email/send", handleSendEmail);
+  router.post("/forget-password", handleForgetPassword);
+  router.get("/reset-password", handleResetPassword);
 
   return app.use("/api/v1/", router);
 };

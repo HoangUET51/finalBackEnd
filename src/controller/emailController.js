@@ -1,4 +1,8 @@
-import { sendEmail } from "../service/emailService";
+import {
+  sendEmail,
+  forgetPassword,
+  resetPassword,
+} from "../service/emailService";
 
 const handleSendEmail = async (req, res) => {
   try {
@@ -27,4 +31,39 @@ const handleSendEmail = async (req, res) => {
   }
 };
 
-module.exports = { handleSendEmail };
+const handleForgetPassword = async (req, res) => {
+  try {
+    let data = await forgetPassword(req.body.email);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      EM: "Error from server",
+      EC: -1,
+      DT: "",
+    });
+  }
+};
+
+const handleResetPassword = async (req, res) => {
+  try {
+    let data = await resetPassword(req.query.email, req.body.password);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      EM: "Error from server",
+      EC: -1,
+      DT: "",
+    });
+  }
+};
+
+module.exports = { handleSendEmail, handleForgetPassword, handleResetPassword };

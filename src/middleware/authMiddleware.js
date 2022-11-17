@@ -1,6 +1,12 @@
 import { verifyToken } from "../service/jwtService";
 require("dotenv").config();
-const nonSecurePaths = ["/", "/login", "/register"];
+const nonSecurePaths = [
+  "/",
+  "/login",
+  "/register",
+  "/forget-password",
+  "/reset-password",
+];
 
 const accessTokenSecret =
   process.env.REFRESH_TOKEN_SECRET || "access-token-secret";
