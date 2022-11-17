@@ -1,52 +1,50 @@
+import bcrypt from "bcrypt";
+import db from "../models/models/index";
 import nodemailer from "nodemailer";
-import { OAuth2Client } from "google-auth-library";
 require("dotenv").config();
 
-const sendEmail = async (email, subject, content) => {
+const salt = bcrypt.genSaltSync(10);
+
+const hashPassword = (userPassword) => {
+  return bcrypt.hashSync(userPassword, salt);
+};
+
+const MAIL_HOST = "smtp.gmail.com";
+const MAIL_POST = "587";
+const MAIL_USERNAME = "vuvanhoangtb123@gmail.com";
+const MAIL_PASSWORD = "pmxfzerncqbpvocy";
+const MAIL_FROM_ADDRESS = "vuvanhoangtb123@gmail.com";
+
+const sendEmail = async (email) => {
   try {
-    const GOOGLE_MAILER_CLIENT_ID = process.env.GOOGLE_MAILER_CLIENT_ID;
-    const GOOGLE_MAILER_CLIENT_SECRET = process.env.GOOGLE_MAILER_CLIENT_SECRET;
-    const GOOGLE_MAILER_REFRESH_TOKEN = process.env.GOOGLE_MAILER_REFRESH_TOKEN;
-    const ADMIN_EMAIL_ADDRESS = process.env.ADMIN_EMAIL_ADDRESS;
-
-    const myOAuth2Client = new OAuth2Client(
-      GOOGLE_MAILER_CLIENT_ID,
-      GOOGLE_MAILER_CLIENT_SECRET
-    );
-
-    myOAuth2Client.setCredentials({
-      refresh_token: GOOGLE_MAILER_REFRESH_TOKEN,
-    });
-
-    const myAccessTokenObject = await myOAuth2Client.getAccessToken();
-    const myAccessToken = myAccessTokenObject?.token;
     const transport = nodemailer.createTransport({
-      service: "gmail",
+      host: MAIL_HOST,
+      port: MAIL_POST,
+      secure: false,
       auth: {
-        type: "OAuth2",
-        user: ADMIN_EMAIL_ADDRESS,
-        clientId: GOOGLE_MAILER_CLIENT_ID,
-        clientSecret: GOOGLE_MAILER_CLIENT_SECRET,
-        refresh_token: GOOGLE_MAILER_REFRESH_TOKEN,
-        accessToken: myAccessToken,
+        user: MAIL_USERNAME,
+        pass: MAIL_PASSWORD,
       },
     });
 
-    const mailOptions = {
+    const options = {
+      from: MAIL_FROM_ADDRESS,
       to: email,
-      subject: subject,
-      html: `<h3>${content}</h3>`,
+      subject: "Reset Password",
+      html: `
+        <h2>Please click on given link to reset your password</h2>
+        <a href="http://localhost:8000/reset-password/">Click me</a>
+    `,
     };
 
-    await transport.sendMail(mailOptions);
+    await transport.sendMail(options);
 
     return {
-      EM: "Email sent successfully.",
+      EM: "Check your email.",
       EC: 0,
       DT: [],
     };
   } catch (error) {
-    console.log(">>>>>>>", error);
     return {
       EM: "Something wrong in server",
       EC: -2,
@@ -54,6 +52,81 @@ const sendEmail = async (email, subject, content) => {
     };
   }
 };
+
+const sendResetPasswordMail = async (email) => {
+  try {
+    const transport = nodemailer.createTransport({
+      host: MAIL_HOST,
+      port: MAIL_POST,
+      secure: false,
+      auth: {
+        user: MAIL_USERNAME,
+        pass: MAIL_PASSWORD,
+      },
+    });
+
+    const options = {
+      from: MAIL_FROM_ADDRESS,
+      to: email,
+      subject: "For Reset Password",
+      html: `
+        <h2>Please click on given link to reset your password</h2>
+        <a href='http://localhost:8000/api/v1/reset-password?email=${email}'>Reset Password</a>
+    `,
+    };
+    await transport.sendMail(options);
+  } catch (error) {}
+};
+
+const forgetPassword = async (email) => {
+  try {
+    let user = await db.User.findOne({
+      where: { email: email },
+    });
+
+    if (user) {
+      sendResetPasswordMail(user.email);
+      return {
+        EM: "Check your email reset password.",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Something wrong in server",
+      EC: -2,
+      DT: [],
+    };
+  }
+};
+
+const resetPassword = async (email, password) => {
+  try {
+    const user = await db.User.findOne({ where: { email: email } });
+    if (user) {
+      const newPassword = hashPassword(password);
+      await user.update({
+        password: newPassword,
+      });
+      return {
+        EM: "User password has been reset",
+        EC: 0,
+        DT: [],
+      };
+    }
+  } catch (error) {
+    return {
+      EM: "Something wrong in server",
+      EC: -2,
+      DT: [],
+    };
+  }
+};
+
 module.exports = {
   sendEmail,
+  forgetPassword,
+  resetPassword,
 };
