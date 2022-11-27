@@ -1,11 +1,10 @@
 import express from "express";
-import connection from "./config/connectDB";
-import configViewEngine from "./config/viewEngine";
-import initApiRoutes from "./routes/api";
-import initWebRoutes from "./routes/web";
 import cookieParser from "cookie-parser";
 import { configCors } from "./config/configCORS";
+import connection from "./config/connectDB";
+import initApiRoutes from "./routes/api";
 const bodyParser = require("body-parser");
+const path = require("path");
 require("dotenv").config();
 const app = express();
 //tạo cổng chạy
@@ -17,12 +16,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 connection();
-
-//config view engine
-configViewEngine(app);
 app.use(cookieParser());
+//setup fileserver static
+app.use("/public", express.static(path.join(__dirname, "./public")));
 //init web routes
-// initWebRoutes(app);
 initApiRoutes(app);
 
 app.use((req, res) => {
