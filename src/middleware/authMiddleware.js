@@ -9,7 +9,8 @@ const nonSecurePaths = [
 ];
 
 const accessTokenSecret =
-  process.env.REFRESH_TOKEN_SECRET || "access-token-secret";
+  process.env.ACCESS_TOKEN_SECRET ||
+  "access-token-secret-example-hoang.vuvan@gmail.com-green-cat-a@";
 
 const extractToken = (req) => {
   if (
@@ -67,6 +68,7 @@ const checkUserPermisstion = (req, res, next) => {
       });
     }
     let canAcess = roles.some((it) => currentUrl.includes(it.url));
+
     if (canAcess === true) {
       next();
     } else {

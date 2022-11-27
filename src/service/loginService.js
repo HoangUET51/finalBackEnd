@@ -6,9 +6,10 @@ import { getGroupWithRole } from "./roleService";
 require("dotenv").config();
 
 const salt = bcrypt.genSaltSync(10);
-const accessTokenLife = process.env.ACCESS_TOKEN_LIFE || "1h";
+const accessTokenLife = process.env.ACCESS_TOKEN_LIFE || "24h";
 const accessTokenSecret =
-  process.env.ACCESS_TOKEN_SECRET || "access-token-secret";
+  process.env.ACCESS_TOKEN_SECRET ||
+  "access-token-secret-example-hoang.vuvan@gmail.com-green-cat-a@";
 
 const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE || "3650d";
 const refreshTokenSecret =
