@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connection();
 app.use(cookieParser());
 //setup fileserver static
-app.use("/public", express.static(path.join(__dirname, "./public")));
+app.use("/public", express.static(path.join(__dirname, "../public")));
 //init web routes
 initApiRoutes(app);
 
